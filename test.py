@@ -11,6 +11,6 @@ from unification import  unify
 # for c in result['theta']:
 #     print(c)
 
-term_1 = 'p(b,X,f(g(Z)))'
-term_2 = 'p(Z,f(Y),f(Y))'
+term_1 = 'p(b, X, f(g(Z)))'
+term_2 = 'p(Z, f(Y), f(Y))'
 print(unify(term_1, term_2))

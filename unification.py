@@ -1,9 +1,19 @@
+def unify2(term_1, term_2):
+    term_1 = term_1.replace(' ', '')
+    term_2 = term_2.replace(' ', '')
+    broken_1 = break_up(term_1)
+    broken_2 = break_up(term_2)
+    subs = []
+    pass
+        
+
+
 def unify(term_1, term_2):
     term_1 = term_1.replace(' ', '')
     term_2 = term_2.replace(' ', '')
     if is_idf(term_1) or is_const(term_1) or is_idf(term_2) or is_const(term_2):
         if term_1 == term_2:
-            return set()
+            return ()
         elif is_idf(term_1):
             if term_1 in term_2:
                 return None
@@ -16,28 +26,29 @@ def unify(term_1, term_2):
                 return (term_1, term_2)
         else:
             return None
-    if is_function(term_1) and is_function(term_2):
-        broken_1 = break_up(term_1)
-        broken_2 = break_up(term_2)
-        if (broken_1['name'] == broken_2['name']) and (len(broken_1['args']) == len(broken_2['args'])):
-            subs = []
-            for i in range(len(broken_1['args'])):
-                sub = unify(broken_1['args'][i], broken_2['args'][i])
-                if sub == None:
-                    return None
-                if not(sub == set()):
-                    broken_1['args'] = broken_1['args'][:i] + apply_sub(broken_1['args'][i:], sub)
-                    broken_2['args'] = broken_2['args'][:i] + apply_sub(broken_2['args'][i:], sub)
-                    subs.append(sub)
-            return subs
-        else:
-            return None
-    pass
+    broken_1 = break_up(term_1)
+    broken_2 = break_up(term_2)
+    subs = []
+    if (broken_1['name'] == broken_2['name']) and (len(broken_1['args']) == len(broken_2['args'])):
+        for i in range(len(broken_1['args'])):
+            sub = unify(broken_1['args'][i], broken_2['args'][i])
+            if type(sub) == type(list()):
+                subs += [s for s in sub]
+                continue
+            if sub == None:
+                return None
+            if not(sub == ()):
+                broken_1['args'] = broken_1['args'][:i] + apply_sub(broken_1['args'][i:], sub)
+                broken_2['args'] = broken_2['args'][:i] + apply_sub(broken_2['args'][i:], sub)
+                subs.append(sub)
+        return subs
+    return None
+    
 
 def apply_sub(term, sub):
     result = []
     for arg in term:
-        result.append(arg.replace(sub[0], sub[1]))
+        result.append(arg.replace(sub[1], sub[0]))
     return result
 
 def break_up(function):
@@ -53,15 +64,20 @@ def break_up(function):
     while i < len(args):
         current_arg = ''
         while i < len(args) and not(args[i] == ','):
-            current_arg += args[i]
             if args[i] == '(':
-                i += 1
-                while i < len(args) and not(args[i] == ')'):
+                opened = -1
+                while i < len(args) and not(opened == 0):
+                    if opened == -1:
+                        opened = 0
+                    if args[i] == '(':
+                        opened += 1
+                    if args[i] == ')':
+                        opened -= 1
                     current_arg += args[i]
                     i += 1
-                if args[i] == ')':
-                    current_arg += ')'
-            i += 1
+            else:
+                current_arg += args[i]
+                i += 1
         args_list.append(current_arg)
         i += 1
 
