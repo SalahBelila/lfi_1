@@ -1,13 +1,3 @@
-def unify2(term_1, term_2):
-    term_1 = term_1.replace(' ', '')
-    term_2 = term_2.replace(' ', '')
-    broken_1 = break_up(term_1)
-    broken_2 = break_up(term_2)
-    subs = []
-    pass
-        
-
-
 def unify(term_1, term_2):
     term_1 = term_1.replace(' ', '')
     term_2 = term_2.replace(' ', '')
