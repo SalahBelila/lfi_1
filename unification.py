@@ -1,39 +1,43 @@
-def unify(term_1, term_2):
+def unify(term_1, term_2, subs=[]):
     term_1 = term_1.replace(' ', '')
     term_2 = term_2.replace(' ', '')
     if is_idf(term_1) or is_const(term_1) or is_idf(term_2) or is_const(term_2):
         if term_1 == term_2:
-            return ()
+            return subs
         elif is_idf(term_1):
             if term_1 in term_2:
                 return None
             else:
-                return (term_2, term_1)
+                sub = (term_2, term_1)
+                subs.append(sub)
+                return unify(term_2, term_2, subs=subs)
         elif is_idf(term_2):
             if term_2 in term_1:
                 return None
             else:
-                return (term_1, term_2)
+                sub = (term_1, term_2)
+                subs.append(sub)
+                return unify(term_1, term_1, subs=subs)
         else:
             return None
     broken_1 = break_up(term_1)
     broken_2 = break_up(term_2)
-    subs = []
-    if (broken_1['name'] == broken_2['name']) and (len(broken_1['args']) == len(broken_2['args'])):
+    if is_function(term_1) and is_function(term_2) and (broken_1['name'] == broken_2['name']) and (len(broken_1['args']) == len(broken_2['args'])):
         for i in range(len(broken_1['args'])):
             sub = unify(broken_1['args'][i], broken_2['args'][i])
-            if type(sub) == type(list()):
-                subs += [s for s in sub]
-                continue
             if sub == None:
                 return None
-            if not(sub == ()):
-                broken_1['args'] = broken_1['args'][:i] + apply_sub(broken_1['args'][i:], sub)
-                broken_2['args'] = broken_2['args'][:i] + apply_sub(broken_2['args'][i:], sub)
-                subs.append(sub)
+            else:
+                # subs += sub
+                for s in subs:
+                    broken_1['args'] = broken_1['args'][:i] + apply_sub(broken_1['args'][i:], s)
+                    broken_2['args'] = broken_2['args'][:i] + apply_sub(broken_2['args'][i:], s)
+        # return subs
         return subs
     return None
-    
+
+# p(f(a), g(Y))
+# p(X, X)
 
 def apply_sub(term, sub):
     result = []
