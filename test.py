@@ -38,7 +38,6 @@ def usage(choice):
 
 def main_start(can_exit=False):
     while not can_exit:
-        gc.collect()
         print('MAIN MENU')
         print('1- Resolution.')
         print('2- Complete Strategy.')
@@ -117,17 +116,18 @@ def c_strategy():
             return True
 
 def unification():
+    gc.collect()
     while True:
         print('Enter two terms.')
         term_1 = input('Enter the first term: ')
         term_2 = input('Enter the second term: ')
         result = unify(term_1, term_2)
         print('Result:- \tO =', stringify(result) if result is not None else '')
-
         choice = input('Press c to return to Main Menu, or press any other key to exit: ')
         if choice == 'c' or choice == 'C':
             return False
         else:
             return True
 
-main_start()
+if __name__ == '__main__':
+    main_start()

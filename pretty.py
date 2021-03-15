@@ -41,4 +41,4 @@ class PrettyTable:
 
 def stringify(iter_list):
     iter_list = [str(e) for e in iter_list]
-    return ' {' + ', '.join(iter_list) + '} '
+    return '{ ' + ', '.join(iter_list) + ' }'
