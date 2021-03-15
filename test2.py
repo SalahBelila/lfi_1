@@ -1,5 +1,4 @@
-from unification import unify
+from checker import analyze
 
 while True:
-    input()
-    print(unify('prime(x)', 'prime(11)'))
+    print(analyze(input(), []))

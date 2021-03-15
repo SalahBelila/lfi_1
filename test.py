@@ -2,18 +2,7 @@ from resolution import Clause, resolve, clausal_set, clausal_set_union
 from complete_strategy import complete_strategy, reduce
 from unification import  unify
 from pretty import stringify
-import gc
-
-# set_1 = clausal_set('a + b,a + -b,-a + b,-a + -b')
-# result = complete_strategy(set_1)
-# result['visuals'].finish()
-
-# 'p(f(a), g(Y))', 'p(X, X)'
-# 'p(b, X, f(g(Z)))', 'p(Z, f(Y), f(Y))'
-
-# term_1 = 'p (Z, f(Z))'
-# term_2 = 'p (X, X)'
-# print(unify(term_1, term_2))
+from checker import analyze_term, analyze_clause, analyze_clausal_set
 
 def usage(choice):
     if choice == 1:
@@ -31,7 +20,13 @@ def usage(choice):
         '''
     elif choice == 3:
         return '''
-
+            How to write terms:
+                a term can be a constant, variable or function.
+                a constant is either a number or a double quoted text ("text")
+                a variable is an IDF.
+                a function is of the form IDF(term1, term2, ..., termx)
+                where IDF is a word that contains only numbers, letters and underscores and does not start with a number.
+                example 1: p(x, f(z), "a")
         '''
     else:
         return None
@@ -78,15 +73,35 @@ def resolution():
 
         if choice == '1':
             clause_1 = Clause(input('Enter the first Clause: '))
+            if not analyze_clause(str(clause_1)):
+                print('invalid clause, please try again.')
+                continue
+
             clause_2 = Clause(input('Enter the second Clause: '))
+            if not analyze_clause(str(clause_2)):
+                print('invalid clause, please try again.')
+                continue
+
             print('Result:-\t( ', clause_1 / clause_2, ' )')
         elif choice == '2':
             set_1 = input('Enter the first clausal set: ')
+            if not analyze_clausal_set(set_1):
+                print('invalid clausal set, please try again.')
+                continue
+
             set_2 = input('Enter the second clausal set: ')
+            if not analyze_clausal_set(set_2):
+                print('invalid clausal set, please try again.')
+                continue
+
             print('Result:-\t{ ', stringify(resolve(clausal_set(set_1), clausal_set(set_2))), ' }')
         elif choice == '3':
             set_1 = input('Enter a clausal set to be reduced: ')
-            print('Result:-\t{ ', stringify(reduce(clausal_set(set_1))), ' }')
+            if not analyze_clausal_set(set_1):
+                print('invalid clausal set, please try again.')
+                continue
+
+            print('Result:-\t', stringify(reduce(clausal_set(set_1))))
         elif choice == '4':
             break
         elif choice == '5':
@@ -116,13 +131,29 @@ def c_strategy():
             return True
 
 def unification():
-    gc.collect()
     while True:
         print('Enter two terms.')
         term_1 = input('Enter the first term: ')
+        result = analyze_term(term_1, [])
+        if not result[0]:
+            print('invalid term, please try again.')
+            print(result[1])
+            print('press a key to continue')
+            input()
+            continue
+
         term_2 = input('Enter the second term: ')
-        result = unify(term_1, term_2)
-        print('Result:- \tO =', stringify(result) if result is not None else '')
+        analyze_term(term_2, [])
+        if not result[0]:
+            print('invalid term, please try again.')
+            print(result[1])
+            print('press a key to continue')
+            input()
+            continue
+
+        result = unify(term_1, term_2, [])
+        print('Result:- \tO = ' + stringify(result) if result is not None else 'Unification Failed.')
+        print('Note: the tuple (x, y) is read as substitute every occurence of y by x.')
         choice = input('Press c to return to Main Menu, or press any other key to exit: ')
         if choice == 'c' or choice == 'C':
             return False

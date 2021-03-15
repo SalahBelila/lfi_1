@@ -1,4 +1,4 @@
-def unify(term_1, term_2, subs=[]):
+def unify(term_1, term_2, subs):
     term_1 = term_1.replace(' ', '')
     term_2 = term_2.replace(' ', '')
     if is_idf(term_1) or is_const(term_1) or is_idf(term_2) or is_const(term_2):
@@ -10,21 +10,21 @@ def unify(term_1, term_2, subs=[]):
             else:
                 sub = (term_2, term_1)
                 subs.append(sub)
-                return unify(term_2, term_2, subs=subs)
+                return unify(term_2, term_2, subs)
         elif is_idf(term_2):
             if term_2 in term_1:
                 return None
             else:
                 sub = (term_1, term_2)
                 subs.append(sub)
-                return unify(term_1, term_1, subs=subs)
+                return unify(term_1, term_1, subs)
         else:
             return None
     broken_1 = break_up(term_1)
     broken_2 = break_up(term_2)
     if is_function(term_1) and is_function(term_2) and (broken_1['name'] == broken_2['name']) and (len(broken_1['args']) == len(broken_2['args'])):
         for i in range(len(broken_1['args'])):
-            sub = unify(broken_1['args'][i], broken_2['args'][i])
+            sub = unify(broken_1['args'][i], broken_2['args'][i], subs)
             if sub == None:
                 return None
             else:
