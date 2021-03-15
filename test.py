@@ -2,6 +2,7 @@ from resolution import Clause, resolve, clausal_set, clausal_set_union
 from complete_strategy import complete_strategy, reduce
 from unification import  unify
 from pretty import stringify
+import gc
 
 # set_1 = clausal_set('a + b,a + -b,-a + b,-a + -b')
 # result = complete_strategy(set_1)
@@ -37,33 +38,32 @@ def usage(choice):
 
 def main_start(can_exit=False):
     while not can_exit:
+        gc.collect()
         print('MAIN MENU')
-        print('Pick a Choice:')
         print('1- Resolution.')
         print('2- Complete Strategy.')
         print('3- Unification.')
         print('4- Help.')
         print('5- Exit.')
 
-        choice = int(input())
+        choice = input('Pick a Choice: ')
 
-        if choice == 1:
+        if choice == '1':
             can_exit = resolution()
-        elif choice == 2:
+        elif choice == '2':
             can_exit = c_strategy()
-        elif choice == 3:
+        elif choice == '3':
             can_exit = unification()
-        elif choice == 4:
+        elif choice == '4':
             i = 1
             while usage(i) is not None:
                 print(usage(i))
                 i += 1
-        elif choice == 5:
+        elif choice == '5':
             print('GOOD BYE.')
             break
         else:
             print('Invalid option.')
-        input('Press any key to continue...')
 
 def resolution():
     while True:
@@ -75,22 +75,22 @@ def resolution():
         print('4- Return to Main Menu.')
         print('5- Exit.')
 
-        choice = int(input())
+        choice = input()
 
-        if choice == 1:
+        if choice == '1':
             clause_1 = Clause(input('Enter the first Clause: '))
             clause_2 = Clause(input('Enter the second Clause: '))
             print('Result:-\t( ', clause_1 / clause_2, ' )')
-        elif choice == 2:
+        elif choice == '2':
             set_1 = input('Enter the first clausal set: ')
             set_2 = input('Enter the second clausal set: ')
             print('Result:-\t{ ', stringify(resolve(clausal_set(set_1), clausal_set(set_2))), ' }')
-        elif choice == 3:
+        elif choice == '3':
             set_1 = input('Enter a clausal set to be reduced: ')
             print('Result:-\t{ ', stringify(reduce(clausal_set(set_1))), ' }')
-        elif choice == 4:
+        elif choice == '4':
             break
-        elif choice == 5:
+        elif choice == '5':
             print('GOOD BYE.')
             return True
         else:
@@ -122,13 +122,12 @@ def unification():
         term_1 = input('Enter the first term: ')
         term_2 = input('Enter the second term: ')
         result = unify(term_1, term_2)
-        print('Result:- \tO = ', stringify(result) if result is not None else '')
+        print('Result:- \tO =', stringify(result) if result is not None else '')
 
         choice = input('Press c to return to Main Menu, or press any other key to exit: ')
         if choice == 'c' or choice == 'C':
             return False
         else:
             return True
-        input('Press any key to continue...')
 
 main_start()
