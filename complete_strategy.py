@@ -1,37 +1,47 @@
-from resolution import resolve, clausal_set_union
+from resolution import resolve, clausal_set_union, clausal_set
 from pretty import PrettyTable
 
-def complete_strategy(clausal_set, activate_visuals=False):
+def complete_strategy(c_set, max_iterations=20):
     #1 Initialization
-    delta = reduce(clausal_set)
+    delta = reduce(c_set)
     theta = set()
-    pp = PrettyTable(['Delta', 'Theta'])
-    pp.add([[str(d) for d in delta], [str(t) for t in theta]])
-    # print('|Delta:-', [str(d) for d in delta], ' |Theta:-', [str(t) for t in theta], ' |')
-    while len(delta) > 0:
-        #2 calculate new delta
+    d_U_t = None
+    resolvents = None
+    i = 0
+    pt = PrettyTable(['k', 'Delta', 'Theta', 'Delta U Theta', 'R(Delta and Delta U Theta)'], enum_col=0)
+    while (len(delta) > 0):
+        #2 Calculate new Delta
         #2.a
-        delta_U_theta = clausal_set_union(delta, theta)
-        candidate_delta = reduce(resolve(delta, delta_U_theta))
+        d_U_t = clausal_set_union(delta, theta)
+        resolvents = clausal_set_union(resolve(delta), resolve(d_U_t))
+        reduced_resolvents = reduce(resolvents)
         #2.b
         to_be_removed = set()
-        for clause_1 in candidate_delta:
-            for clause_2 in delta_U_theta:
+        for clause_1 in reduced_resolvents:
+            for clause_2 in d_U_t:
                 if clause_1.includes(clause_2):
                     to_be_removed.add(clause_1)
                     break
-        delta = candidate_delta - to_be_removed
+        new_delta = reduced_resolvents - to_be_removed
 
-        #3 calculate the new theta
+        #3 Calcualte new Theta
         to_be_removed = set()
-        for clause_1 in delta_U_theta:
-            for clause_2 in delta:
+        for clause_1 in d_U_t:
+            for clause_2 in new_delta:
                 if clause_1.includes(clause_2):
                     to_be_removed.add(clause_1)
-        theta = delta_U_theta - to_be_removed
-        pp.add([[str(d) for d in delta], [str(t) for t in theta]])
-        # print('|Delta:-', [str(d) for d in delta], ' |Theta:-', [str(t) for t in theta], ' |')
-    return {'delta': delta, 'theta': theta, 'visuals': pp}
+                    break
+        new_theta = d_U_t - to_be_removed
+
+        pt.add([str(i), [str(c) for c in delta], [str(c) for c in theta], [str(c) for c in d_U_t], [str(c) for c in resolvents]])
+
+        delta = new_delta
+        theta = new_theta
+        resolvents = reduced_resolvents
+        i += 1
+
+    pt.add([str(i), [str(c) for c in delta], [str(c) for c in theta], [str(c) for c in d_U_t], [str(c) for c in resolvents]])
+    return {'delta': delta, 'theta': theta, 'visuals': pt}
     
 def reduce(clausal_set):
     to_be_removed = set()

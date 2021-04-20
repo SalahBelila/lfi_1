@@ -4,6 +4,8 @@ from unification import  unify
 from pretty import stringify
 from checker import analyze_term, analyze_clause, analyze_clausal_set
 
+# a + b + -a, a + b, a + b + c, a + -b, -a + b, -a + -b
+
 def usage(choice):
     if choice == 1:
         return '''
@@ -26,7 +28,7 @@ def usage(choice):
                 a variable is an IDF.
                 a function is of the form IDF(term1, term2, ..., termx)
                 where IDF is a word that contains only numbers, letters and underscores and does not start with a number.
-                example 1: p(x, f(z), "a")
+                example 1: p(x, f(z), "a"), example 2: g(7, f(x), h(k(z)), "7")
         '''
     else:
         return None
@@ -64,7 +66,7 @@ def resolution():
         print('Resolution Menu.')
         print('Pick a Choice.')
         print('1- Resolve two clauses.')
-        print('2- Get all resolvents of two clausal sets.')
+        print('2- Get all resolvents of a clausal set.')
         print('3- Reduce a clausal set.')
         print('4- Return to Main Menu.')
         print('5- Exit.')
@@ -76,32 +78,26 @@ def resolution():
             if not analyze_clause(str(clause_1)):
                 print('invalid clause, please try again.')
                 continue
-
             clause_2 = Clause(input('Enter the second Clause: '))
             if not analyze_clause(str(clause_2)):
                 print('invalid clause, please try again.')
                 continue
-
-            print('Result:-\t( ', clause_1 / clause_2, ' )')
+            print('Result:-\t( ', clause_1 // clause_2, ' )')
+        
         elif choice == '2':
-            set_1 = input('Enter the first clausal set: ')
+            set_1 = input('Enter the clausal set: ')
             if not analyze_clausal_set(set_1):
                 print('invalid clausal set, please try again.')
                 continue
+            print('Result:-\t', stringify(resolve(clausal_set(set_1))))
 
-            set_2 = input('Enter the second clausal set: ')
-            if not analyze_clausal_set(set_2):
-                print('invalid clausal set, please try again.')
-                continue
-
-            print('Result:-\t{ ', stringify(resolve(clausal_set(set_1), clausal_set(set_2))), ' }')
         elif choice == '3':
             set_1 = input('Enter a clausal set to be reduced: ')
             if not analyze_clausal_set(set_1):
                 print('invalid clausal set, please try again.')
                 continue
-
             print('Result:-\t', stringify(reduce(clausal_set(set_1))))
+
         elif choice == '4':
             break
         elif choice == '5':
@@ -114,13 +110,13 @@ def resolution():
 
 def c_strategy():
     while True:
-        print('Enter two clausal sets to apply the complete strategy algorithm on.')
-        set_1 = input('Enter the first clausal set: ')
-        set_2 = input('Enter the second clausal set: ')
-        choice = input('Be verbose?[Y/N]: ')
-        result = complete_strategy(clausal_set(set_1), clausal_set(set_2))
+        print('Enter a clausal set to apply the complete strategy algorithm on.')
+        set_1 = input('Enter the clausal set: ')
+        choice = input('Be verbose? [Y/N]: ')
+        result = complete_strategy(clausal_set(set_1))
         if choice == 'y' or choice == 'Y':
-            result['visuals'].finish()
+            print('\n\n')
+            result['visuals'].finish(inline_border=False)
         else:
             print('Result:-\n\tDelta: ', stringify(result['delta']), '\n\tTheta: ', stringify(result['theta']))
 
@@ -153,7 +149,7 @@ def unification():
 
         result = unify(term_1, term_2, [])
         print('Result:- \tO = ' + stringify(result) if result is not None else 'Unification Failed.')
-        print('Note: the tuple (x, y) is read as substitute every occurence of y by x.')
+        print('Note: the pair (x, y) is read as: substitute every occurence of y by x.')
         choice = input('Press c to return to Main Menu, or press any other key to exit: ')
         if choice == 'c' or choice == 'C':
             return False
